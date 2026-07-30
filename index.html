@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="p-4 md:p-8 text-slate-800">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">Bảng Xếp Hạng Mô Hình AI</h1>
+            <p class="text-slate-500 mt-2">Dựa trên bộ tiêu chuẩn đánh giá</p>
+        </header>
+
+        <!-- Section 3: Detailed Table -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h2 class="text-lg font-bold text-slate-800">Bảng dữ liệu chi tiết</h2>
+            </div>
+            <div class="overflow-x-auto table-container">
+                <table class="w-full text-sm text-left whitespace-nowrap">
+                    <thead class="text-xs uppercase bg-slate-50 text-slate-600">
+                        <tr>
+                            <th colspan="4" class="px-6 py-4 border-r border-b text-center bg-[#f0f4f8]">THÔNG TIN MÔ HÌNH</th>
+                            <th colspan="6" class="px-6 py-4 border-r border-b text-center bg-[#e2e8f0]">Ngôn ngữ địa phương (Phương ngữ)</th>
+                        </tr>
+                        <tr class="bg-white border-b">
+                            <th class="px-6 py-3 font-semibold">#</th>
+                            <th class="px-6 py-3 font-semibold">Mô hình</th>
+                            <th class="px-6 py-3 font-semibold text-slate-400">Tổ chức</th>
+                            <th class="px-6 py-3 font-semibold border-r">Điểm tổng hợp ▼</th>
+                            <th class="px-4 py-3 font-semibold">PNB</th>
+                            <th class="px-4 py-3 font-semibold">PNT1</th>
+                            <th class="px-4 py-3 font-semibold">PNT2</th>
+                            <th class="px-4 py-3 font-semibold">PNT3</th>
+                            <th class="px-4 py-3 font-semibold">PNT4</th>
+                            <th class="px-4 py-3 font-semibold border-r">PNN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 2: Multi-dimensional & Category Charts WITH SELECTION UI -->
+        <section>
+            <!-- UI Chọn mô hình -->
+            <div class="mb-6">
+                <h2 class="text-lg font-bold text-slate-800 mb-1">So sánh hiệu suất đa chiều giữa các mô hình công khai</h2>
+                
+                <div class="mt-4 relative flex flex-wrap items-center gap-3" id="selectionArea">
+                    <!-- Nút mở dropdown -->
+                    <button id="toggleDropdownBtn" class="flex items-center gap-2 px-4 py-2 border border-emerald-400 text-emerald-600 rounded-full hover:bg-emerald-50 transition-colors font-medium text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Chọn mô hình
+                    </button>
+                    
+                    <!-- Nơi chứa các tag mô hình đã chọn -->
+                    <div id="selectedTags" class="flex flex-wrap gap-2"></div>
+
+                    <!-- Dropdown List -->
+                    <div id="modelDropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                        <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center text-xs font-semibold text-slate-500">
+                            <span>TỐI ĐA 10 MÔ HÌNH</span>
+                        </div>
+                        <div class="p-2 border-b border-slate-100">
+                            <label class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer select-none text-sm font-medium text-blue-600">
+                                <input type="checkbox" id="selectAllBtn" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                Chọn tất cả
+                            </label>
+                        </div>
+                        <ul id="dropdownList" class="max-h-60 overflow-y-auto p-2 space-y-1">
+                            <!-- Items injected via JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Radar Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">Hiệu suất đa chiều</h3>
+                        <p class="text-sm text-slate-500">So sánh sức mạnh tổng thể giữa các mô hình dẫn đầu</p>
+                    </div>
+                    <div class="h-[400px] flex justify-center">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Grouped Bar Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">Điểm số theo hạng mục</h3>
+                        <p class="text-sm text-slate-500">Chi tiết từng hạng mục đánh giá tiếng Việt</p>
+                    </div>
+                    <div class="h-[400px]">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 1: Overall Ranking Chart -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-slate-800">Chỉ số thông minh tổng hợp (Intelligence Index)</h2>
+                <p class="text-sm text-slate-500">Xếp hạng tổng thể top các mô hình theo điểm tổng hợp</p>
+            </div>
+            <div class="h-[400px] w-full">
+                <canvas id="overallChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Section 4: Subject Detail Cards -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Chi tiết từng phương ngữ (Top 3)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="subjectCards">
+                <!-- Cards injected via JS -->
+            </div>
+        </section>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

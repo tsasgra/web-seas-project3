@@ -1,0 +1,31 @@
+/* Reset font and basic background */
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #f8fafc; 
+}
+
+/* Custom scroll behavior for the data table */
+.table-container { 
+    max-height: 500px; 
+    overflow-y: auto; 
+}
+
+/* Make table header sticky when scrolling */
+thead th { 
+    position: sticky; 
+    top: 0; 
+    z-index: 10; 
+}
+
+/* Optional: Custom scrollbar styling for webkit browsers */
+.table-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.table-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
