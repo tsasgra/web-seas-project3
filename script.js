@@ -9,6 +9,8 @@ const DATA_FILES = [
     { file: 'data/vistral7boutput.jsonl', org: 'Viet-Mistral', displayName: 'Vistral 7B Chat' }
 ];
 
+const QA_GOLD_FILE = 'data/probe_dialects.jsonl';
+
 const DIALECTS = [
     { key: 'standard', label: 'Chuẩn' },
     { key: 'PNB', label: 'PNB' },
@@ -22,6 +24,7 @@ const DIALECTS = [
 const TASKS = [
     { key: 'mcqa', label: 'Trắc nghiệm' },
     { key: 'nli', label: 'Suy luận NLI' },
+    { key: 'qa', label: 'QA' },
     { key: 'sentiment', label: 'Cảm xúc' }
 ];
 
@@ -40,7 +43,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     setStatus('Đang tải dữ liệu từ các file JSONL...');
 
     try {
-        modelsData = await loadAllModels();
+        const qaGoldMap = await loadQaGoldMap();
+        modelsData = await loadAllModels(qaGoldMap);
         selectedModels = modelsData.slice(0, 3).map((model) => model.name);
 
         initOverallChart();
@@ -52,14 +56,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         const totalRows = modelsData.reduce((sum, model) => sum + model.rows, 0);
         const validRows = modelsData.reduce((sum, model) => sum + model.validRows, 0);
         const skippedRows = modelsData.reduce((sum, model) => sum + model.skippedRows, 0);
-        setStatus(`Đã tải ${totalRows.toLocaleString('vi-VN')} dòng từ ${modelsData.length} file. Tính accuracy trên ${validRows.toLocaleString('vi-VN')} dòng có gold; bỏ qua ${skippedRows.toLocaleString('vi-VN')} dòng QA không có gold.`);
+        setStatus(`Đã tải ${totalRows.toLocaleString('vi-VN')} dòng từ ${modelsData.length} file. Tính accuracy trên ${validRows.toLocaleString('vi-VN')} dòng có gold; bỏ qua ${skippedRows.toLocaleString('vi-VN')} dòng thiếu gold.`);
     } catch (error) {
         console.error(error);
         setStatus('Không tải được dữ liệu. Hãy chạy web bằng server tĩnh, ví dụ: npx serve .', true);
     }
 });
 
-async function loadAllModels() {
+async function loadQaGoldMap() {
+    const response = await fetch(QA_GOLD_FILE);
+    if (!response.ok) {
+        throw new Error(`Cannot load ${QA_GOLD_FILE}: ${response.status}`);
+    }
+
+    const text = await response.text();
+    const qaGoldMap = new Map();
+
+    text.split(/\r?\n/).filter(Boolean).forEach((line) => {
+        const row = parseJsonLine(line);
+        if (row?.task === 'qa' && Array.isArray(row.answers) && row.answers.length > 0) {
+            qaGoldMap.set(row.id, row.answers);
+        }
+    });
+
+    return qaGoldMap;
+}
+
+async function loadAllModels(qaGoldMap) {
     const summaries = await Promise.all(DATA_FILES.map(async (source) => {
         const response = await fetch(source.file);
         if (!response.ok) {
@@ -67,7 +90,7 @@ async function loadAllModels() {
         }
 
         const text = await response.text();
-        return summarizeModel(text, source);
+        return summarizeModel(text, source, qaGoldMap);
     }));
 
     return summaries
@@ -75,7 +98,7 @@ async function loadAllModels() {
         .map((model, index) => ({ ...model, rank: index + 1 }));
 }
 
-function summarizeModel(text, source) {
+function summarizeModel(text, source, qaGoldMap) {
     const summary = createCounter();
     const dialectCounters = Object.fromEntries(DIALECTS.map(({ key }) => [key, createCounter()]));
     const taskCounters = Object.fromEntries(TASKS.map(({ key }) => [key, createCounter()]));
@@ -89,12 +112,13 @@ function summarizeModel(text, source) {
         parsedModelName = row.model_name || parsedModelName;
         summary.rows += 1;
 
-        if (!isScorable(row)) {
+        const gold = getGold(row, qaGoldMap);
+        if (!isScorableGold(gold)) {
             summary.skippedRows += 1;
             return;
         }
 
-        const correct = isCorrect(row.gold, row.prediction);
+        const correct = isCorrect(gold, row.prediction);
         addScore(summary, correct);
 
         if (dialectCounters[row.dialect_group]) {
@@ -139,12 +163,27 @@ function parseJsonLine(line) {
     }
 }
 
-function isScorable(row) {
-    return row.gold !== null && row.gold !== undefined && String(row.gold).trim() !== '';
+function getGold(row, qaGoldMap) {
+    if (row.task === 'qa' && qaGoldMap.has(row.id)) {
+        return qaGoldMap.get(row.id);
+    }
+
+    return row.gold;
+}
+
+function isScorableGold(gold) {
+    if (Array.isArray(gold)) {
+        return gold.some((answer) => String(answer ?? '').trim() !== '');
+    }
+
+    return gold !== null && gold !== undefined && String(gold).trim() !== '';
 }
 
 function isCorrect(gold, prediction) {
-    return normalizeAnswer(gold) === normalizeAnswer(prediction);
+    const normalizedPrediction = normalizeAnswer(prediction);
+    const goldAnswers = Array.isArray(gold) ? gold : [gold];
+
+    return goldAnswers.some((answer) => normalizeAnswer(answer) === normalizedPrediction);
 }
 
 function normalizeAnswer(value) {

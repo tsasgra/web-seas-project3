@@ -24,7 +24,7 @@
         <section class="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-sm">
             <div class="border-b border-slate-100 p-6">
                 <h2 class="text-lg font-bold text-slate-800">Bảng dữ liệu chi tiết</h2>
-                <p class="mt-1 text-sm text-slate-500">Điểm tổng hợp là accuracy trên các dòng có `gold`; các dòng QA có `gold: NaN` không được tính vào mẫu.</p>
+                <p class="mt-1 text-sm text-slate-500">Điểm tổng hợp là accuracy trên các dòng có gold; riêng QA lấy đáp án chuẩn từ `probe_dialects.jsonl`.</p>
             </div>
             <div class="table-container overflow-x-auto">
                 <table class="w-full whitespace-nowrap text-left text-sm">
@@ -94,7 +94,7 @@
                 <div class="rounded-lg border border-slate-100 bg-white p-6 shadow-sm">
                     <div class="mb-4">
                         <h3 class="text-lg font-bold text-slate-800">Điểm theo task</h3>
-                        <p class="text-sm text-slate-500">MCQA, NLI và sentiment có đáp án chuẩn trong file.</p>
+                        <p class="text-sm text-slate-500">MCQA, NLI, QA và sentiment được tính từ output JSONL và gold finalized.</p>
                     </div>
                     <div class="h-[400px]">
                         <canvas id="categoryChart"></canvas>
