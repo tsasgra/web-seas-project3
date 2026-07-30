@@ -11,100 +11,90 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="p-4 md:p-8 text-slate-800">
+<body class="p-4 text-slate-800 md:p-8">
 
-    <div class="max-w-7xl mx-auto space-y-8">
-        
-        <!-- Header -->
+    <div class="mx-auto max-w-7xl space-y-8">
+
         <header class="mb-8">
-            <h1 class="text-3xl font-bold text-slate-900">Bảng Xếp Hạng Mô Hình AI</h1>
-            <p class="text-slate-500 mt-2">Dựa trên bộ tiêu chuẩn đánh giá</p>
+            <h1 class="text-3xl font-bold text-slate-900">Bảng xếp hạng mô hình AI</h1>
+            <p class="mt-2 text-slate-500">Accuracy được tính trực tiếp từ các file JSONL trong thư mục demo.</p>
+            <p id="dataStatus" class="mt-2 text-sm text-slate-500">Đang chuẩn bị dữ liệu...</p>
         </header>
 
-        <!-- Section 3: Detailed Table -->
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-6 border-b border-slate-100">
+        <section class="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-sm">
+            <div class="border-b border-slate-100 p-6">
                 <h2 class="text-lg font-bold text-slate-800">Bảng dữ liệu chi tiết</h2>
+                <p class="mt-1 text-sm text-slate-500">Điểm tổng hợp là accuracy trên các dòng có `gold`; các dòng QA có `gold: NaN` không được tính vào mẫu.</p>
             </div>
-            <div class="overflow-x-auto table-container">
-                <table class="w-full text-sm text-left whitespace-nowrap">
-                    <thead class="text-xs uppercase bg-slate-50 text-slate-600">
+            <div class="table-container overflow-x-auto">
+                <table class="w-full whitespace-nowrap text-left text-sm">
+                    <thead class="bg-slate-50 text-xs uppercase text-slate-600">
                         <tr>
-                            <th colspan="4" class="px-6 py-4 border-r border-b text-center bg-[#f0f4f8]">THÔNG TIN MÔ HÌNH</th>
-                            <th colspan="6" class="px-6 py-4 border-r border-b text-center bg-[#e2e8f0]">Ngôn ngữ địa phương (Phương ngữ)</th>
+                            <th colspan="4" class="border-b border-r bg-[#eef4f7] px-6 py-4 text-center">Thông tin mô hình</th>
+                            <th colspan="7" class="border-b border-r bg-[#e5edf0] px-6 py-4 text-center">Phương ngữ</th>
+                            <th rowspan="2" class="border-b bg-[#eef4f7] px-4 py-4 text-center">Mẫu tính</th>
                         </tr>
-                        <tr class="bg-white border-b">
+                        <tr class="border-b bg-white">
                             <th class="px-6 py-3 font-semibold">#</th>
                             <th class="px-6 py-3 font-semibold">Mô hình</th>
-                            <th class="px-6 py-3 font-semibold text-slate-400">Tổ chức</th>
-                            <th class="px-6 py-3 font-semibold border-r">Điểm tổng hợp ▼</th>
+                            <th class="px-6 py-3 font-semibold text-slate-500">Tổ chức</th>
+                            <th class="border-r px-6 py-3 font-semibold">Điểm tổng hợp</th>
+                            <th class="px-4 py-3 font-semibold">Chuẩn</th>
                             <th class="px-4 py-3 font-semibold">PNB</th>
                             <th class="px-4 py-3 font-semibold">PNT1</th>
                             <th class="px-4 py-3 font-semibold">PNT2</th>
                             <th class="px-4 py-3 font-semibold">PNT3</th>
                             <th class="px-4 py-3 font-semibold">PNT4</th>
-                            <th class="px-4 py-3 font-semibold border-r">PNN</th>
+                            <th class="px-4 py-3 font-semibold">PNN</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        <!-- Data injected via JS -->
-                    </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Section 2: Multi-dimensional & Category Charts WITH SELECTION UI -->
         <section>
-            <!-- UI Chọn mô hình -->
             <div class="mb-6">
-                <h2 class="text-lg font-bold text-slate-800 mb-1">So sánh hiệu suất đa chiều giữa các mô hình công khai</h2>
-                
-                <div class="mt-4 relative flex flex-wrap items-center gap-3" id="selectionArea">
-                    <!-- Nút mở dropdown -->
-                    <button id="toggleDropdownBtn" class="flex items-center gap-2 px-4 py-2 border border-emerald-400 text-emerald-600 rounded-full hover:bg-emerald-50 transition-colors font-medium text-sm">
+                <h2 class="mb-1 text-lg font-bold text-slate-800">So sánh hiệu suất đa chiều giữa các mô hình</h2>
+
+                <div class="relative mt-4 flex flex-wrap items-center gap-3" id="selectionArea">
+                    <button id="toggleDropdownBtn" class="flex items-center gap-2 rounded-full border border-[#1e3a5f] px-4 py-2 text-sm font-medium text-[#1e3a5f] transition-colors hover:bg-slate-50">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Chọn mô hình
                     </button>
-                    
-                    <!-- Nơi chứa các tag mô hình đã chọn -->
-                    <div id="selectedTags" class="flex flex-wrap gap-2"></div>
 
-                    <!-- Dropdown List -->
-                    <div id="modelDropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                        <div class="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center text-xs font-semibold text-slate-500">
-                            <span>TỐI ĐA 10 MÔ HÌNH</span>
+                    <div id="selectedTags" class="flex min-w-0 flex-wrap gap-2"></div>
+
+                    <div id="modelDropdown" class="absolute left-0 top-full z-50 mt-2 hidden w-80 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 p-3 text-xs font-semibold text-slate-500">
+                            <span>Tối đa 10 mô hình</span>
                         </div>
-                        <div class="p-2 border-b border-slate-100">
-                            <label class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer select-none text-sm font-medium text-blue-600">
-                                <input type="checkbox" id="selectAllBtn" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <div class="border-b border-slate-100 p-2">
+                            <label class="flex cursor-pointer select-none items-center gap-3 rounded p-2 text-sm font-medium text-blue-600 hover:bg-slate-50">
+                                <input type="checkbox" id="selectAllBtn" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                                 Chọn tất cả
                             </label>
                         </div>
-                        <ul id="dropdownList" class="max-h-60 overflow-y-auto p-2 space-y-1">
-                            <!-- Items injected via JS -->
-                        </ul>
+                        <ul id="dropdownList" class="max-h-60 space-y-1 overflow-y-auto p-2"></ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Radar Chart -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div class="rounded-lg border border-slate-100 bg-white p-6 shadow-sm">
                     <div class="mb-4">
                         <h3 class="text-lg font-bold text-slate-800">Hiệu suất đa chiều</h3>
-                        <p class="text-sm text-slate-500">So sánh sức mạnh tổng thể giữa các mô hình dẫn đầu</p>
+                        <p class="text-sm text-slate-500">So sánh accuracy theo phương ngữ và task.</p>
                     </div>
-                    <div class="h-[400px] flex justify-center">
+                    <div class="flex h-[400px] justify-center">
                         <canvas id="radarChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Grouped Bar Chart -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div class="rounded-lg border border-slate-100 bg-white p-6 shadow-sm">
                     <div class="mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">Điểm số theo hạng mục</h3>
-                        <p class="text-sm text-slate-500">Chi tiết từng hạng mục đánh giá tiếng Việt</p>
+                        <h3 class="text-lg font-bold text-slate-800">Điểm theo task</h3>
+                        <p class="text-sm text-slate-500">MCQA, NLI và sentiment có đáp án chuẩn trong file.</p>
                     </div>
                     <div class="h-[400px]">
                         <canvas id="categoryChart"></canvas>
@@ -112,24 +102,20 @@
                 </div>
             </div>
         </section>
-        
-        <!-- Section 1: Overall Ranking Chart -->
-        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+
+        <section class="rounded-lg border border-slate-100 bg-white p-6 shadow-sm">
             <div class="mb-4">
-                <h2 class="text-xl font-bold text-slate-800">Chỉ số thông minh tổng hợp (Intelligence Index)</h2>
-                <p class="text-sm text-slate-500">Xếp hạng tổng thể top các mô hình theo điểm tổng hợp</p>
+                <h2 class="text-xl font-bold text-slate-800">Chỉ số tổng hợp</h2>
+                <p class="text-sm text-slate-500">Xếp hạng tổng thể theo accuracy trên toàn bộ mẫu có đáp án chuẩn.</p>
             </div>
             <div class="h-[400px] w-full">
                 <canvas id="overallChart"></canvas>
             </div>
         </section>
 
-        <!-- Section 4: Subject Detail Cards -->
         <section class="mb-8">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Chi tiết từng phương ngữ (Top 3)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="subjectCards">
-                <!-- Cards injected via JS -->
-            </div>
+            <h2 class="mb-4 text-xl font-bold text-slate-800">Top 3 theo từng phương ngữ</h2>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" id="subjectCards"></div>
         </section>
 
     </div>
